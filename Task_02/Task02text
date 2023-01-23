@@ -69,3 +69,47 @@ plot(as.numeric(names(totalFeed)), totalFeed, type="b", pch=16, xlab="age in day
 abline(h=mean(totalFeed), lty=2, col='red')
 dev.off()
 source("http://jonsmitchell.com/code/plotFxn02b.R")
+
+berenMass <-which(Data1$event=='trait_mass')
+cyrusMass <-which(Data2$event=='trait_mass')
+boxplot(beren3$age[berenMass] ~ beren3$value[berenMass], xlab= "age", ylab = "mass (kg)")
+par(las=1, mar=c(5,5,1,1), mgp=c(2, 0.5, 0), tck=-0.01)
+
+plot(beren3$age[berenMass], berenMass, type="b", pch=16, xlab="age in days", ylab="mass in kg", xlim=c(0,225), ylim=c(0,20))
+
+dayID <- apply(Data2, 1, function(x) paste (x[1:3], collapse='-'))
+dateID <- sapply(dayID, as.Date, format = "%Y-%m-%d", origin = "2019-04-18")
+Data2$age <- dateID - dateID[which(Data2$event == 'birth')]
+cyrus2 <- Data2
+cyrus3 <- cyrus2[order(cyrus2$age),]
+
+cyrusMassKilo <-which(cyrus3$event=='trait_mass')
+cyrusMassKiloGrams <- cyrusMassKilo/1000
+
+points(cyrus3$age[cyrusMassKilo], cyrusMassKiloGrams, type="b", pch=8, col="deeppink")
+
+berenIdk <- which(beren3$value == [berenWeight])
+
+berenActualMass <- c(beren3[2:4,10], beren3[7,10], beren3[9,10], beren3[11,10], beren3[14,10], beren3[17,10], beren3[246,10],beren3[275,10],beren3[622,10],beren3[720,10],beren3[1014,10], beren3[1211,10], beren3[1234,10], beren3[1242:1243,10], beren3[1359,10], beren3[1367,10], beren3[1369,10], beren3[1371,10])
+
+berenAgeWhenMass <- c(beren3[2:4,13], beren3[7,13], beren3[9,13], beren3[11,13], beren3[14,13], beren3[17,13], beren3[246,13],beren3[275,13],beren3[622,13],beren3[720,13],beren3[1014,13], beren3[1211,13], beren3[1234,13], beren3[1242:1243,13], beren3[1359,13], beren3[1367,13], beren3[1369,13], beren3[1371,13])
+
+plot(berenAgeWhenMass, berenActualMass, type="b", main="Age VS Mass Of Children", pch=16, xlab="age in days", ylab="mass in kg", xlim=c(0,225), ylim=c(0,15))
+
+child2 <- which(cyrus3$event=='trait_mass')
+
+cyrusMassGrams <- c(cyrus3[2:4,10],cyrus3[6,10],cyrus3[9,10],cyrus3[11,10],cyrus3[13,10],cyrus3[18,10],cyrus3[22,10])
+
+cyrusActualMassKiloGrams <- cyrusMassGrams/1000
+
+cyrusAgeWhenMass <- c(cyrus3[2:4,13],cyrus3[6,13],cyrus3[9,13],cyrus3[11,13],cyrus3[13,13],cyrus3[18,13],cyrus3[22,13])
+
+points(cyrusAgeWhenMass, cyrusActualMassKiloGrams, type="b", pch=8, col="deeppink")
+title(main="Age VS Mass of Dr. Mitchells Children")
+
+legend(1, 13, legend=c("Beren", "Cyrus"), col=c("black", "pink"), lty=1:2, cex=0.8)
+
+cd ~/Desktop/Evolution/Tasks
+git add -A
+git commit -m "Alexa Head Task 02 upload"
+git push -u origin master
