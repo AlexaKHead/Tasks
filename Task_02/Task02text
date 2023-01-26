@@ -109,7 +109,7 @@ title(main="Age VS Mass of Dr. Mitchells Children")
 
 legend(1, 13, legend=c("Beren", "Cyrus"), col=c("black", "pink"), lty=1:2, cex=0.8)
 
-cd ~/Desktop/Evolution/Tasks
+cd ~/Evolution/Tasks
 git add -A
 git commit -m "Alexa Head Task 02 upload a"
-git push -u origin master
+git push -f origin master
