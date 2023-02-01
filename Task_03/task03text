@@ -79,7 +79,7 @@ mean(ManySiblings)
 
 hist(ManySiblings, main="How Related Focus Is To Their Many Siblings", ylab="Frequency of Many Siblings", xlab="Relatedness To Focus", ylim=c(0,250), labels=TRUE)
 
-cd ~/Desktop/Evolution/Tasks
+cd ~/Evolution/Tasks/Task_03
 git add -A
 git commit -m "Alexa Head Task 03"
 git push -u origin master
