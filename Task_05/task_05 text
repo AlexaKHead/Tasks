@@ -86,3 +86,8 @@ legend.text = element_text(size=10)
 )
 
 coalescent.plot()
+
+cd ~/Evolution/Tasks/Task_05
+git add -A
+git commit -m "Alexa Head Task 05"
+git push -u origin master
