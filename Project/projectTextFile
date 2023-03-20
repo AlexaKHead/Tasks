@@ -18,3 +18,8 @@ colnames(microHabitats)
 neoteny <- read.csv("neoteny.csv")
 head(neoteny)
 colnames(neoteny)
+str(neoteny)
+
+alwaysNeotenic <- which(neoteny$neotenic=='2')
+
+neoteny[which(c(neoteny$genus, neoteny$species) == neoteny$neotenic==2)]
