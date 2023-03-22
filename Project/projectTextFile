@@ -20,9 +20,17 @@ head(neoteny)
 colnames(neoteny)
 str(neoteny)
 
-alwaysNeotenic <- which(neoteny$neotenic=='2')
+install.packages('dplyr')
+library('dplyr')
 
-neoteny[which(c(neoteny$genus, neoteny$species) == neoteny$neotenic==2)]
+alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
+
+normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
+
+directDevelopment <- normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
+
+flexDevelop <- directDevelopment <- normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
+
 
 cd ~/Evolution/Tasks/Project
 git add -A
