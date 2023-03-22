@@ -23,3 +23,8 @@ str(neoteny)
 alwaysNeotenic <- which(neoteny$neotenic=='2')
 
 neoteny[which(c(neoteny$genus, neoteny$species) == neoteny$neotenic==2)]
+
+cd ~/Evolution/Tasks/Project
+git add -A
+git commit -m "Alexa Head Project"
+git push -u origin master
