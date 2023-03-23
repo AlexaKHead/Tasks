@@ -22,15 +22,30 @@ str(neoteny)
 
 install.packages('dplyr')
 library('dplyr')
+install.packages('ggplot2')
+library('ggplot2')
+install.packages("reshape2")
+library("reshape2")
 
 alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
-
 normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
+directDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
+flexDevelop <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
 
-directDevelopment <- normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
+microHabitats2 <- microHabitats[, -c(2, 3, 5:8)]
+nrow(microHabitats2)
 
-flexDevelop <- directDevelopment <- normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
+norm_Develop <- paste(normalDevelopment$genus, normalDevelopment$species, sep="_")
+flex_Develop <- paste(flexDevelop$genus, flexDevelop$species, sep="_")
+direct_Develop <- paste(directDevelopment$genus, directDevelopment$species, sep="_")
+always_Neo <- paste(alwaysNeotenic$genus, alwaysNeotenic$species, sep="_")
 
+normDevHabitat <- filter(microHabitats2, Species %in% norm_Develop)
+flexDevHabitat <- filter(microHabitats2, Species %in% flex_Develop)
+directDevHabitat <- filter(microHabitats2, Species %in% direct_Develop)
+alwaysNeoHabitat <- filter(microHabitats2, Species %in% always_Neo)
+
+str(alwaysNeoHabitat)
 
 cd ~/Evolution/Tasks/Project
 git add -A
