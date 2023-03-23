@@ -58,9 +58,10 @@ plot(obj, type="fan", legend=0.7*max(nodeHeights(AnolisTree)), sig=2, fsize=c(0.
 
 fossilData <- data.frame(svl=log(c(25.4, 23.2, 17.7, 19.7, 24, 31)), tip1=c("Anolis_aliniger", "Anolis_aliniger","Anolis_occultus","Anolis_ricordii","Anolis_cristatellus","Anolis_occultis"), tip2=c("Anolis_chlorocyanus","Anolis_coelestinus","Anolis_hendersoni","Anolis_cybotes","Anolis_angusticeps","Anolis_angusticeps"))
 
-for(i in fossilData){
-	fossilNodes<-c()
-	nodeN <- c()
+fossilNodes<-c()
+nodeN <- c()
+
+for(i in 1:nrow(fossilData)){
 	Node <- fastMRCA(AnolisTree, fossilData[i, "tip1"], fossilData[i, "tip2"])
 	fossilNodes[i] <- fossilData[i, "svl"]
 	nodeN[i] <- Node
