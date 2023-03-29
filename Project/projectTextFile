@@ -1,6 +1,6 @@
 setwd("C:/Users/lexik/evolution/tasks/project")
 getwd()
-install.packages('readxl')
+#install.packages('readxl')
 library("readxl")
 df = read_xlsx("C:/Users/lexik/evolution/tasks/project/AllSpecimens.xlsx")
 allSpecimens <- df
@@ -20,34 +20,44 @@ head(neoteny)
 colnames(neoteny)
 str(neoteny)
 
-install.packages('dplyr')
+#install.packages('dplyr')
 library('dplyr')
-install.packages('ggplot2')
+#install.packages('ggplot2')
 library('ggplot2')
-install.packages("reshape2")
+#install.packages("reshape2")
 library("reshape2")
 
-alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
-normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
-directDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
-flexDevelop <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
+#alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
+#normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
+#directDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
+#flexDevelop <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
 
-microHabitats2 <- microHabitats[, -c(2, 3, 5:8)]
-nrow(microHabitats2)
+neoSp <- apply(neoteny, 1, function(x) paste(x[1], x[2], sep="_"))
+rownames(neoteny) <- neoSp
+rownames(microHabitats) <- microHabitats[,1]
+Keeps <- intersect(rownames(neoteny), rownames(microHabitats))
 
-norm_Develop <- paste(normalDevelopment$genus, normalDevelopment$species, sep="_")
-flex_Develop <- paste(flexDevelop$genus, flexDevelop$species, sep="_")
-direct_Develop <- paste(directDevelopment$genus, directDevelopment$species, sep="_")
-always_Neo <- paste(alwaysNeotenic$genus, alwaysNeotenic$species, sep="_")
+neo2 <- neoteny[Keeps,]
+micro2 <- microHabitats[Keeps,]
 
-normDevHabitat <- filter(microHabitats2, Species %in% norm_Develop)
-flexDevHabitat <- filter(microHabitats2, Species %in% flex_Develop)
-directDevHabitat <- filter(microHabitats2, Species %in% direct_Develop)
-alwaysNeoHabitat <- filter(microHabitats2, Species %in% always_Neo)
+ohabitat <- tapply(micro2$M7, micro2$M7, length)
+oneo <- tapply(neo2$neotenic, neo2$neotenic, length)
 
-str(alwaysNeoHabitat)
+outMat <- matrix(0, nrow=7, ncol=4)
+rownames(outMat) <- unique(micro2$M7)
+colnames(outMat) <- unique(neo2$neotenic)
+for (count in 1:4){
+  Neo <- unique(neo2$neotenic)[count]
+  NeoRows <- which(neo2$neotenic == Neo)
+  Habs <- tapply(micro2[NeoRows,"M7"], micro2[NeoRows,"M7"], length)
+  outMat[names(Habs),count] <- Habs
+}
+outMat <- outMat[,c("-1","0","1","2")]
+Cols <- c('#d53e4f','#fc8d59','#fee08b','#ffffbf','#e6f598','#99d594','#3288bd')
+names(Cols) <- unique(micro2$M7)
 
-cd ~/Evolution/Tasks/Project
-git add -A
-git commit -m "Alexa Head Project"
-git push -u origin master
+par(las=1, mar=c(4,5,1,1))
+barplot(outMat, col=Cols, legend.text=T, ylab="Number of Species", xlab="Lifestyle", ylim=c(0,250))
+
+
+
