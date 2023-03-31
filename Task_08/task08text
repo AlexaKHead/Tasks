@@ -1,0 +1,17 @@
+setwd("C:/Users/lexik/evolution/tasks/task_08")
+library("phytools")
+trees <- list()
+births <- c()
+fractions <- c()
+?pbtree
+for(i in 1:100){
+	births[[i]] <- runif(3)
+	fractions[[i]] <- runif(4)
+	trees[[i]] <- pbtree(n=100, b=births, d=births*fractions)
+}
+
+plot
+
+logs <- log(sapply(trees, Ntip))
+netdiv <- (births-(births*fractions))
+plot(netdiv, logs)
