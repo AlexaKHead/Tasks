@@ -19,9 +19,16 @@ neoteny <- read.csv("neoteny.csv")
 head(neoteny)
 colnames(neoteny)
 str(neoteny)
-
-#install.packages('dplyr')
+library("phytools")
+library("ape")
+caudata <- read.tree(file="Bonett_and_Blair_Phylo.tre")
+install.packages('dplyr')
 library('dplyr')
+install.packages('tidyr')
+library('tidyr')
+install.packages('plyr')
+library('plyr')
+
 #install.packages('ggplot2')
 library('ggplot2')
 #install.packages("reshape2")
@@ -36,12 +43,16 @@ neoSp <- apply(neoteny, 1, function(x) paste(x[1], x[2], sep="_"))
 rownames(neoteny) <- neoSp
 rownames(microHabitats) <- microHabitats[,1]
 Keeps <- intersect(rownames(neoteny), rownames(microHabitats))
+rownames(bodyMeasurements) <- bodyMeasurements[,1]
+Keeps3 <- intersect(rownames(neoteny), rownames(bodyMeasurements))
 
 neo2 <- neoteny[Keeps,]
 micro2 <- microHabitats[Keeps,]
+bodyMeas3 <- bodyMeasurements[Keeps3,]
 
 ohabitat <- tapply(micro2$M7, micro2$M7, length)
 oneo <- tapply(neo2$neotenic, neo2$neotenic, length)
+omeas <- tapply(bodyMeas3$SVL, bodyMeas3$SVL, length)
 
 outMat <- matrix(0, nrow=7, ncol=4)
 rownames(outMat) <- unique(micro2$M7)
@@ -56,8 +67,24 @@ outMat <- outMat[,c("-1","0","1","2")]
 Cols <- c('#d53e4f','#fc8d59','#fee08b','#ffffbf','#e6f598','#99d594','#3288bd')
 names(Cols) <- unique(micro2$M7)
 
-par(las=1, mar=c(4,5,1,1))
-barplot(outMat, col=Cols, legend.text=T, ylab="Number of Species", xlab="Lifestyle", ylim=c(0,250))
+svl2 <- reframe(bodyMeasurements, .by=c("Species", "SVL")
+rownames(svl2) <- svl2[,1]
 
+diff <- micro3[setdiff(names(micro3), names(svl2))]
 
+reframe(x=intersect(svl2, micro3), .by=rownames)
 
+plot(caudata, cex=0.25)
+
+micro3 <- subset(micro2, select = -c(M6, L6, L7, McM6, McL6, Pleth))
+neo3 <- subset(neo2, select = -c(notes))
+
+listDF <- list(micro3, neo3, svl2)
+
+master <- merge(listDF, by = 0, all = TRUE)[-1]
+
+do.call("merge", c(lapply(listDF), data.frame), by=0, all=TRUE))[-1]
+
+test1 <- data.frame(micro3, cbind(zoo(,1:nrow(micro3)), as.zoo(svl2)))
+
+setdiff(bodyMeasurements, micro3)
