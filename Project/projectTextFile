@@ -27,10 +27,9 @@ library('tidyr')
 library('plyr')
 library('knitr')
 library('ggplot2')
-install.packages('readr')
-install.packages('multcompView')
 library('readr')
 library('multcompView')
+library('ggpubr')
 
 
 ###############################
@@ -89,34 +88,41 @@ qplot(x = SVL, y = TL, geom = "point", data = master) +
   facet_grid(.~neotenic, labeller = label_both)
 
 
-#####ANOVA SVL###################
-####WEIGHTED MEAN, 47.25402 for SVL
-mean(master$SVL)
-##neotenic
+#####2 WAY ANOVA SVL and TL ###################
+preanova1 <- lm(SVL ~ neotenic*M7, data=master)
+anova1 <- anova(preanova1)
+summary(anova1)
+summary.aov(preanova1, split=list(M7=list(L=1, Q=2)))
 
-master$neotenic <- as.factor(master$neotenic)
-master$SVL_Factor <- as.factor(master$SVL)
-#anova1 <- aov(SVL ~)
+contrasts1 <- summary.aov(preanova1, split=list(M7=list(L=1, Q=2)))[[1]][c(3,4,6,7), c(2,1,4,5)]
 
-#habitat
-anova(lm(SVL~M7*neotenic, master))
+#maineffects1 <- anova1[c(1,2,3),]
+#meContrasts1 <- contrasts1[c(1,2),]
+#interaction1 <- anova1[4,]
+#int_contrasts1 <- contrasts1[c(3,4),]
+#resid1 <- anova1[5,]
 
-###ANOVA TL, WEIGHTED MEAN 44.04319
-mean(master$TL)
-#neotenic
-anova(lm(TL~neotenic*M7, master))
-#habitat
-anova(lm(TL~M7*neotenic, master))
+#anova1 <- rbind(maineffects1, meContrasts1, interaction1, int_contrasts1, resid1)
 
-#sstable <- Anova(#create var for anova, type=3)
+options(knitr.kable.NA = '')
+tableSVL <- kable(anova1, digits=3, format="pandoc", caption="SVL Table")
 
+preanova2 <- lm(TL ~ neotenic*M7, data=master)
+anova2 <- anova(preanova2)
+summary(anova2)
+summary.aov(preanova2, split=list(M7=list(L=1, Q=2)))
+contrasts2 <- summary.aov(preanova2, split=list(M7=list(L=1, Q=2)))[[1]][c(3,4,6,7), c(2,1,4,5)]
+
+tableTL <- kable(anova2, digits=3, format="pandoc", caption="TL Table")
+
+####################################
 ##BOXPLOT SVL VS HABITAT#####
+######### TL VS HAB ########
 ##########################
-habSVL <- ggplot(master, aes(y=SVL, x=M7, fill=M7)) +
-geom_boxplot() +
-theme_classic()
-habSVL + ggtitle("SVL by Microhabitat") + xlab("Habitat") + ylab("Snout Vent Length")
-habSVL + labs(fill = "Microhabitats")
+
+plot(SVL ~ neotenic + factor(M7), data=master, col=Cols, xlab="Microhabitat")
+plot(TL ~ neotenic + factor(M7), data=master, col=Cols, xlab="Microhabitat")
+
 
 ####################################
 #####LOG LINEAR REGRESSION###########
@@ -127,10 +133,6 @@ abline(lm(log(SVL)~ log(TL), data=master), col='red')
 legend("topleft", legend = levels(factor(master$M7)), pch = 19, col = factor(levels(factor(master$M7))))
 legend
 
-mod1 = lm((log(SVL) ~ log(TL)), data=master)
-modsum = summary(mod1)
-r2 <- modsum$adj.r.squared
-text(x=4.2, y=0, "0.602", col="red", srt=90)
 
 ###############################
 ##FOR PHYLO##
