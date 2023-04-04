@@ -28,11 +28,14 @@ install.packages('tidyr')
 library('tidyr')
 install.packages('plyr')
 library('plyr')
-
-#install.packages('ggplot2')
+install.packages('knitr')
+library('knitr')
+install.packages('ggplot2')
 library('ggplot2')
+
 #install.packages("reshape2")
 library("reshape2")
+
 
 #alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
 #normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
@@ -44,15 +47,23 @@ rownames(neoteny) <- neoSp
 rownames(microHabitats) <- microHabitats[,1]
 Keeps <- intersect(rownames(neoteny), rownames(microHabitats))
 rownames(bodyMeasurements) <- bodyMeasurements[,1]
-Keeps3 <- intersect(rownames(neoteny), rownames(bodyMeasurements))
 
+
+#### Fusing into 1 object
+rownames(neoteny) <- neoSp
+rownames(microHabitats) <- microHabitats[,1]
+Keeps2 <- intersect(rownames(neoteny), rownames(microHabitats))
+rownames(bodyMeasurements) <- bodyMeasurements[,1]
+Keeps2 <- intersect(Keeps2, rownames(bodyMeasurements))
+newMat <- data.frame(neoteny[Keeps2,], bodyMeasurements[Keeps2,], microHabitats[Keeps2,])
+
+
+#####
 neo2 <- neoteny[Keeps,]
 micro2 <- microHabitats[Keeps,]
-bodyMeas3 <- bodyMeasurements[Keeps3,]
 
 ohabitat <- tapply(micro2$M7, micro2$M7, length)
 oneo <- tapply(neo2$neotenic, neo2$neotenic, length)
-omeas <- tapply(bodyMeas3$SVL, bodyMeas3$SVL, length)
 
 outMat <- matrix(0, nrow=7, ncol=4)
 rownames(outMat) <- unique(micro2$M7)
@@ -66,25 +77,40 @@ for (count in 1:4){
 outMat <- outMat[,c("-1","0","1","2")]
 Cols <- c('#d53e4f','#fc8d59','#fee08b','#ffffbf','#e6f598','#99d594','#3288bd')
 names(Cols) <- unique(micro2$M7)
+barplot(outMat, col=Cols)
 
-svl2 <- reframe(bodyMeasurements, .by=c("Species", "SVL")
+svl2 <- reframe(bodyMeasurements, .by=c("Species", "SVL"))
 rownames(svl2) <- svl2[,1]
-
-diff <- micro3[setdiff(names(micro3), names(svl2))]
-
-reframe(x=intersect(svl2, micro3), .by=rownames)
-
-plot(caudata, cex=0.25)
-
 micro3 <- subset(micro2, select = -c(M6, L6, L7, McM6, McL6, Pleth))
 neo3 <- subset(neo2, select = -c(notes))
-
 listDF <- list(micro3, neo3, svl2)
 
-master <- merge(listDF, by = 0, all = TRUE)[-1]
+master <- subset(newMat, select = -c(notes, M6, L6, L7, McM6, McL6, McM6, Pleth, Species.1, Species))
 
-do.call("merge", c(lapply(listDF), data.frame), by=0, all=TRUE))[-1]
+#####anova
+#weighted mean, 47.25402 for SVL
+mean(master$SVL)
+#neotenic
+anova(lm(SVL~neotenic*M7, master))
+#habitat
+anova(lm(SVL~M7*neotenic, master))
 
-test1 <- data.frame(micro3, cbind(zoo(,1:nrow(micro3)), as.zoo(svl2)))
+#sstable <- Anova(#create var for anova, type=3)
 
-setdiff(bodyMeasurements, micro3)
+##Plot of SVL vs Habitat
+habSVL <- ggplot(master, aes(y=SVL, x=M7, fill=M7)) +
+geom_boxplot() +
+theme_classic()
+habSVL + ggtitle("SVL by Microhabitat") + xlab("Habitat") + ylab("Snout Vent Length")
+habSVL + labs(fill = "Microhabitats")
+
+#####LOG LINEAR REGRESSION###########
+#####SVL VS TL##############
+par(pch=19)
+plot(log(SVL) ~ log(TL), data=master, xlab="Snout Vent Length", ylab="Tail Length", main="SVL vs TL", col=factor(master$M7))
+abline(lm(log(SVL)~ log(TL), data=master), col='red')
+legend("topleft", legend = levels(factor(master$M7)), pch = 19, col = factor(levels(factor(master$M7))))
+
+###############################
+##for phylo##
+plot(caudata, cex=0.25)
