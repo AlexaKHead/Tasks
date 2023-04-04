@@ -22,25 +22,19 @@ str(neoteny)
 library("phytools")
 library("ape")
 caudata <- read.tree(file="Bonett_and_Blair_Phylo.tre")
-install.packages('dplyr')
 library('dplyr')
-install.packages('tidyr')
 library('tidyr')
-install.packages('plyr')
 library('plyr')
-install.packages('knitr')
 library('knitr')
-install.packages('ggplot2')
 library('ggplot2')
+install.packages('readr')
+install.packages('multcompView')
+library('readr')
+library('multcompView')
 
-#install.packages("reshape2")
-library("reshape2")
 
-
-#alwaysNeotenic <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='2'))
-#normalDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='0'))
-#directDevelopment <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='-1'))
-#flexDevelop <- neoteny %>% group_by(genus, species) %>% reframe(which(neotenic=='1'))
+###############################
+#########
 
 neoSp <- apply(neoteny, 1, function(x) paste(x[1], x[2], sep="_"))
 rownames(neoteny) <- neoSp
@@ -49,7 +43,7 @@ Keeps <- intersect(rownames(neoteny), rownames(microHabitats))
 rownames(bodyMeasurements) <- bodyMeasurements[,1]
 
 
-#### Fusing into 1 object
+#### Fusing into 1 object##########
 rownames(neoteny) <- neoSp
 rownames(microHabitats) <- microHabitats[,1]
 Keeps2 <- intersect(rownames(neoteny), rownames(microHabitats))
@@ -87,30 +81,66 @@ listDF <- list(micro3, neo3, svl2)
 
 master <- subset(newMat, select = -c(notes, M6, L6, L7, McM6, McL6, McM6, Pleth, Species.1, Species))
 
-#####anova
-#weighted mean, 47.25402 for SVL
+#####SIMPLE PLOTS FOR DATA VISUALS##########
+qplot(x = SVL, y = TL, geom = "point", data = master) +
+  facet_grid(.~M7, labeller = label_both)
+
+qplot(x = SVL, y = TL, geom = "point", data = master) +
+  facet_grid(.~neotenic, labeller = label_both)
+
+
+#####ANOVA SVL###################
+####WEIGHTED MEAN, 47.25402 for SVL
 mean(master$SVL)
-#neotenic
-anova(lm(SVL~neotenic*M7, master))
+##neotenic
+
+master$neotenic <- as.factor(master$neotenic)
+master$SVL_Factor <- as.factor(master$SVL)
+#anova1 <- aov(SVL ~)
+
 #habitat
 anova(lm(SVL~M7*neotenic, master))
 
+###ANOVA TL, WEIGHTED MEAN 44.04319
+mean(master$TL)
+#neotenic
+anova(lm(TL~neotenic*M7, master))
+#habitat
+anova(lm(TL~M7*neotenic, master))
+
 #sstable <- Anova(#create var for anova, type=3)
 
-##Plot of SVL vs Habitat
+##BOXPLOT SVL VS HABITAT#####
+##########################
 habSVL <- ggplot(master, aes(y=SVL, x=M7, fill=M7)) +
 geom_boxplot() +
 theme_classic()
 habSVL + ggtitle("SVL by Microhabitat") + xlab("Habitat") + ylab("Snout Vent Length")
 habSVL + labs(fill = "Microhabitats")
 
+####################################
 #####LOG LINEAR REGRESSION###########
 #####SVL VS TL##############
 par(pch=19)
-plot(log(SVL) ~ log(TL), data=master, xlab="Snout Vent Length", ylab="Tail Length", main="SVL vs TL", col=factor(master$M7))
+plot(log(SVL) ~ log(TL), data=master, xlab="Snout Vent Length", ylab="Tail Length", main="SVL vs TL", col=factor(master$M7), sub="R2 = 0.602")
 abline(lm(log(SVL)~ log(TL), data=master), col='red')
 legend("topleft", legend = levels(factor(master$M7)), pch = 19, col = factor(levels(factor(master$M7))))
+legend
+
+mod1 = lm((log(SVL) ~ log(TL)), data=master)
+modsum = summary(mod1)
+r2 <- modsum$adj.r.squared
+text(x=4.2, y=0, "0.602", col="red", srt=90)
 
 ###############################
-##for phylo##
+##FOR PHYLO##
 plot(caudata, cex=0.25)
+
+
+
+##############
+##GitHub PUSH#####
+cd ~/Evolution/Tasks/Project
+git add -A
+git commit -m "Final Project"
+git push -u origin master
