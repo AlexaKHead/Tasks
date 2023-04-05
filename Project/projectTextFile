@@ -92,31 +92,22 @@ plotB <- qplot(x = SVL, y = TL, geom = "point", data = master) +
 
 
 #####2 WAY ANOVA SVL and TL ###################
-preanova1 <- lm(SVL ~ neotenic*M7, data=master)
-anova1 <- anova(preanova1)
-summary(anova1)
-summary.aov(preanova1, split=list(M7=list(L=1, Q=2)))
+twoway<- aov(SVL ~ factor(neotenic) + factor(M7) , data=master)
+interaction <- aov(SVL~factor(neotenic)*factor(M7), data=master)
+library(AICcmodavg)
+model.set <- list(twoway, interaction)
+model.names <- c("twoway", "interaction")
+aictab(model.set, modnames=model.names)
+summary(twoway)
 
-contrasts1 <- summary.aov(preanova1, split=list(M7=list(L=1, Q=2)))[[1]][c(3,4,6,7), c(2,1,4,5)]
 
-#maineffects1 <- anova1[c(1,2,3),]
-#meContrasts1 <- contrasts1[c(1,2),]
-#interaction1 <- anova1[4,]
-#int_contrasts1 <- contrasts1[c(3,4),]
-#resid1 <- anova1[5,]
+twoway2<- aov(TL ~ factor(neotenic) + factor(M7) , data=master)
+interaction2 <- aov(TL~factor(neotenic)*factor(M7), data=master)
+model.set2 <- list(twoway2, interaction2)
+model.names2 <- c("twoway2", "interaction2")
+aictab(model.set2, modnames=model.names2)
+summary(twoway2)
 
-#anova1 <- rbind(maineffects1, meContrasts1, interaction1, int_contrasts1, resid1)
-
-options(knitr.kable.NA = '')
-tableSVL <- kable(anova1, digits=3, format="pandoc", caption="SVL Table")
-
-preanova2 <- lm(TL ~ neotenic*M7, data=master)
-anova2 <- anova(preanova2)
-summary(anova2)
-summary.aov(preanova2, split=list(M7=list(L=1, Q=2)))
-contrasts2 <- summary.aov(preanova2, split=list(M7=list(L=1, Q=2)))[[1]][c(3,4,6,7), c(2,1,4,5)]
-
-tableTL <- kable(anova2, digits=3, format="pandoc", caption="TL Table")
 
 ####################################
 ##BOXPLOT SVL VS HABITAT#####
