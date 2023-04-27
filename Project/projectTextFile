@@ -144,8 +144,24 @@ m1 <- lmer(SVL ~ M7 + neotenic + (1|genusspec), data=master3, control=lmerContro
 summary(m1)
 ranef(m1)
 
+nested.mod=lmer(master3$SVL ~ master3$M7 + master3$neotenic + (1 | master3$genusspec))
+
+m1 <- lmer(SVL ~ M7 + neotenic + (1| M7/neotenic), data=master3)
+
+######scatterbox########
+
+ggplot(master3,aes(x=M7,y=SVL,col=neotenic)) + geom_jitter() + geom_boxplot(alpha=0.2) + facet_wrap(~neotenic)
+
+ggplot(master3,aes(x=M7,y=TL,col=neotenic)) + geom_jitter() + geom_boxplot(alpha=0.2) + facet_wrap(~neotenic)
 
 
+####fit = lmer(SVL ~ 1 + (1|M7:genusspec),data=master3)
+boundary(singular)
+ranef(fit)
+
+fit = lmer(SVL ~ M7 + (1|genusspec),data=master3)
+
+lm(SVL~M7,data=master3)
 
 ##############
 ##GitHub PUSH#####
