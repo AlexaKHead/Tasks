@@ -6,9 +6,6 @@ df = read_xlsx("C:/Users/lexik/evolution/tasks/project/AllSpecimens.xlsx")
 allSpecimens <- df
 head(allSpecimens)
 colnames(allSpecimens)
-footMeans <- read.csv("FootLandmarks.SpeciesSummary.Csize.csv")
-head(footMeans)
-colnames(footMeans)
 bodyMeasurements <- read.csv("LinMeas.SpeciesSummaries.csv")
 head(bodyMeasurements)
 colnames(bodyMeasurements)
@@ -19,18 +16,16 @@ neoteny <- read.csv("neoteny.csv")
 head(neoteny)
 colnames(neoteny)
 str(neoteny)
-library("phytools")
-library("ape")
-caudata <- read.tree(file="Bonett_and_Blair_Phylo.tre")
 library('dplyr')
 library('tidyr')
 library('plyr')
-library('knitr')
 library('ggplot2')
 library('readr')
 library('multcompView')
 library('ggpubr')
-
+library('lme4')
+library('tidymodels')
+library('multilevelmod')
 
 ###############################
 #########
@@ -70,7 +65,7 @@ for (count in 1:4){
 outMat <- outMat[,c("-1","0","1","2")]
 Cols <- c('#d53e4f','#fc8d59','#fee08b','#ffffbf','#e6f598','#99d594','#3288bd')
 names(Cols) <- unique(micro2$M7)
-barplot(outMat, col=Cols)
+barplot(outMat, col=Cols, ylim=c(0,250), legend.text=rownames(outMat), xlab="Lifestyle", ylab="Number of Species")
 
 svl2 <- reframe(bodyMeasurements, .by=c("Species", "SVL"))
 rownames(svl2) <- svl2[,1]
@@ -79,6 +74,10 @@ neo3 <- subset(neo2, select = -c(notes))
 listDF <- list(micro3, neo3, svl2)
 
 master <- subset(newMat, select = -c(notes, M6, L6, L7, McM6, McL6, McM6, Pleth, Species.1, Species))
+
+master2 <- subset(newMat, select = -c(notes, M6, L6, L7, McM6, McL6, McM6, Pleth, Species.1, Species, SE, HL, BWL, FLL, HLL))
+
+
 
 #####SIMPLE PLOTS FOR DATA VISUALS##########
 
@@ -131,8 +130,20 @@ legend("topleft", legend = levels(factor(master$M7)), pch = 19, col = factor(lev
 (lm(log(SVL) ~ log(TL), data=master))
 
 ###############################
-##FOR PHYLO##
-plot(caudata, cex=0.25)
+#MIXED EFFECT MODEL#
+
+master2$genusspec <- paste(master2$genus, master2$species)
+
+master3 <- master2 %>% 
+  mutate(neotenic = factor(neotenic))
+
+master3 <- master2 %>% 
+  mutate(M7 = factor(M7),neotenic = factor(neotenic), genusspec=factor(genusspec))
+
+m1 <- lmer(SVL ~ M7 + neotenic + (1|genusspec), data=master3, control=lmerControl(check.nobs.vs.nlev = "ignore", check.nobs.vs.rankZ = "ignore", check.nobs.vs.nRE="ignore"))
+summary(m1)
+ranef(m1)
+
 
 
 
